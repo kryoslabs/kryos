@@ -1,7 +1,5 @@
 # Kryos Labs
 
-<div align="center">
-
 [![Built with Poetry](https://img.shields.io/badge/Built%20with-Poetry-4B9FC1.svg)](https://python-poetry.org/)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1.1-EE4C2C.svg)](https://pytorch.org/)
@@ -12,8 +10,6 @@
 Self-hosted cryptocurrency intelligence platform leveraging advanced neural networks and real-time market data for institutional-quality insights.
 
 ⚠️ **Development Status**: Alpha version. Basic functionality is implemented but the system is under active development.
-
-</div>
 
 ## Features
 
