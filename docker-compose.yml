@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  api:
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql://kryos:kryos@db:5432/kryos
+      - REDIS_URL=redis://cache:6379/0
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      - db
+      - cache
+      - kafka
+    volumes:
+      - ./app:/app
+    networks:
+      - kryos-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=kryos
+      - POSTGRES_PASSWORD=kryos
+      - POSTGRES_DB=kryos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - kryos-network
+
+  cache:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    networks:
+      - kryos-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+    depends_on:
+      - zookeeper
+    networks:
+      - kryos-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - kryos-network
+
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    volumes:
+      - ./docker/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    networks:
+      - kryos-network
+
+  grafana:
+    image: grafana/grafana:10.0.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - kryos-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  zookeeper_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  kryos-network:
+    driver: bridge 
